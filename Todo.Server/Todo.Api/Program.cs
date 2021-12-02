@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddLogging();
+
 builder.Services.AddDbContextPool<DataContext>(options =>
     options.UseSqlServer
     (
