@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import agent from '@/api/agent';
 
 export default createStore({
   state: {
@@ -24,6 +25,16 @@ export default createStore({
       state.archivedTodos.splice(state.archivedTodos.indexOf(todo), 1);
     },
   },
-  actions: {},
+  actions: {
+    async fetchToDos() {
+      await agent.ToDos.list()
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
   modules: {},
 });
