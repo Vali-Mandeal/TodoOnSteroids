@@ -1,6 +1,16 @@
-﻿namespace Todo.Api.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Todo.Api.Entities;
 public class Priority
 {
-    public int Id { get; set; }
+    public Priority()   
+    {
+        Id = Guid.NewGuid();
+    }
+
+    [Key]
+    public Guid Id { get; set; }
     public string Name { get; set; }
+    public string Icon { get; set; }
 }
+        

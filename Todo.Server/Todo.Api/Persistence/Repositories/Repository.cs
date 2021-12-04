@@ -14,7 +14,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         Context = context;
     }
-    public virtual async Task<TEntity> GetAsync(int id)
+    public virtual async Task<TEntity> GetAsync(Guid id)
     {
         return await Context.Set<TEntity>().FindAsync(id);
     }

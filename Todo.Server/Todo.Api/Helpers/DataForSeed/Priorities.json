@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Name": "low",
+    "Icon": "low-icon"
+  },
+  {
+    "Name": "normal",
+    "Icon": "normal-icon"
+  },
+  {
+    "Name": "high",
+    "Icon": "high-icon"
+  }
+]

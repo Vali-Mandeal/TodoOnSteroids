@@ -1,0 +1,37 @@
+[
+  {
+    "Description": "Learn React",
+    "IsDone": "false",
+    "PriorityName": "high"
+  },
+
+  {
+    "Description": "Learn .NET 6",
+    "IsDone": "false",
+    "PriorityName": "normal"
+  },
+
+  {
+    "Description": "Buy Milk",
+    "IsDone": "true",
+    "PriorityName": "low"
+  },
+
+  {
+    "Description": "Try Publi24's new feature'",
+    "IsDone": "false",
+    "PriorityName": "normal"
+  },
+
+  {
+    "Description": "Don't drink and drive'",
+    "IsDone": "false",
+    "PriorityName": "low"
+  },
+
+  {
+    "Description": "Smoke and Fly",
+    "IsDone": "true",
+    "PriorityName": "high"
+  }
+]
