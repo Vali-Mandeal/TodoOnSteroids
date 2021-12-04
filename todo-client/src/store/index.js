@@ -24,6 +24,11 @@ export default createStore({
       state.todos.push(todo);
       state.archivedTodos.splice(state.archivedTodos.indexOf(todo), 1);
     },
+    sendToArchive(state, id) {
+      const todo = state.todos.find((todo) => todo.id === id);
+      state.archivedTodos.push(todo);
+      state.todos.splice(state.todos.indexOf(todo), 1);
+    },
   },
   actions: {
     async fetchToDos() {

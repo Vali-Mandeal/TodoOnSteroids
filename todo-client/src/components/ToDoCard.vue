@@ -1,18 +1,18 @@
 <template>
-  <div>
-    <va-card class="card">
-      <va-card-content>
-        <va-tabs v-model="value">
-          <template #tabs>
-            <va-tab v-for="tab in ['Active', 'Archived']" :key="tab">
-              {{ tab }}
-            </va-tab>
-          </template>
-        </va-tabs>
-      </va-card-content>
+  <va-card class="card">
+    <va-card-content>
+      <va-tabs v-model="value">
+        <template #tabs>
+          <va-tab v-for="tab in ['Active', 'Archived']" :key="tab">
+            {{ tab }}
+          </va-tab>
+        </template>
+      </va-tabs>
+    </va-card-content>
+    <transition name="fade" mode="out-in">
       <component :is="getTab()" />
-    </va-card>
-  </div>
+    </transition>
+  </va-card>
 </template>
 
 <script>
