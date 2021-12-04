@@ -122,7 +122,7 @@ public class TodosController : ControllerBase
         throw new NotImplementedException();
     }
 
-    [HttpPost("{id}/archive")]
+    [HttpPost("{id}/unarchive")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]  
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Unarchive(Guid id)
