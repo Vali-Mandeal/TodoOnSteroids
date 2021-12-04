@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Todo.Api.Persistence;
 using Todo.Api.Persistence.Repositories.Interfaces;
 using Todo.Api.Persistence.Repositories;
+using Todo.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,16 @@ builder.Services.AddDbContextPool<DataContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddCors();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
 builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
+
+builder.Services.AddScoped<ITodosService, TodosService>();
+builder.Services.AddScoped<IPriorityService, PriorityService>();
 
 builder.Services.AddControllers();
 
