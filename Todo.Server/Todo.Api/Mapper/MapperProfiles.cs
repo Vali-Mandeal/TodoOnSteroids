@@ -13,8 +13,11 @@ public class MapperProfiles : Profile
 
         CreateMap<TodoItemForCreateDto, TodoItem>();
 
-        CreateMap<TodoItemForUpdateDto, TodoItem>()
-            .ForMember(todo => todo.Priority, opts => opts.Ignore());    
+        CreateMap<TodoItemForUpdateDto, TodoItem>();
+
+        CreateMap<TodoItem, TodoItem>()
+            .ForMember(todo => todo.Priority, opts => opts.Ignore())
+            .ForMember(todo => todo.Id, opts => opts.Ignore());
     }
 }
 

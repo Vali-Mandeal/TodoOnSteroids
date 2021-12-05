@@ -6,25 +6,18 @@ using Domain.Common.ResultHandling;
 using Todo.Application.Contracts;
 using Todo.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
-
-//using AutoMapper;
+using AutoMapper;
 
 public class TodosService : ITodosService
 {
     ILogger<TodosService> _logger;
-    //private readonly IMapper _mapper;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
-    //public TodosService(ILogger<TodosService> logger, IMapper mapper,IUnitOfWork unitOfWork)
-    //{
-    //    _logger = logger;
-    //    _mapper = mapper;
-    //    _unitOfWork = unitOfWork;
-    //}
-
-    public TodosService(ILogger<TodosService> logger, IUnitOfWork unitOfWork)
+    public TodosService(ILogger<TodosService> logger, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _logger = logger;
+        _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
 
@@ -80,20 +73,20 @@ public class TodosService : ITodosService
         throw new NotImplementedException();
     }
 
-    //public async Task<Result> UpdateAsync(TodoItem todoItem, TodoItemForUpdateDto todoItemForUpdateDto)
-    //{
-    //    _logger.LogInformation("Client calling UpdateAsync in Service Layer.");
+    public async Task<Result> UpdateAsync(TodoItem oldTodoItem, TodoItem newTodoItem)
+    {
+        _logger.LogInformation("Client calling UpdateAsync in Service Layer.");
 
-    //    _mapper.Map(todoItemForUpdateDto, todoItem);
+        _mapper.Map(newTodoItem, oldTodoItem);
 
-    //    var result = await _unitOfWork.CompleteAsync();
+        var result = await _unitOfWork.CompleteAsync();
 
-    //    if (result.IsFailure)
-    //    {
-    //       _logger.LogError($"UpdateAsync failed in Service Layer.{result.Error}");
-    //        return Result.Fail("Could not update todo.");
-    //    }
+        if (result.IsFailure)   
+        {
+            _logger.LogError($"UpdateAsync failed in Service Layer.{result.Error}");
+            return Result.Fail("Could not update todo.");
+        }
 
-    //    return Result.Ok();
-    //}
+        return Result.Ok();
+    }
 }

@@ -32,7 +32,6 @@ public class TodosController : ControllerBase
     [HttpGet]   
     public async Task<IActionResult> GetAll()
     {
-        //_logger.LogInformation(_rabbitMqConfig.Value.RabbitMqRootUri);
         var todos = await _todosService.GetAllAsync();
 
         try
@@ -99,15 +98,17 @@ public class TodosController : ControllerBase
         if (priority is null)
             return BadRequest("Selected priority is invalid.");
 
-        var todoItem = await _todosService.GetAsync(id);
+        var oldTodoItem = await _todosService.GetAsync(id);
 
-        if (todoItem is null)
+        if (oldTodoItem is null)
             return NotFound("The todo you're looking for does not exist.");
 
-        //var result = await _todosService.UpdateAsync(todoItem, todoItemForUpdateDto);
+        var updatedTodo = _mapper.Map<TodoItem>(todoItemForUpdateDto);
 
-        //if (result.IsFailure)
-        //    return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
+        var result = await _todosService.UpdateAsync(oldTodoItem, updatedTodo);
+
+        if (result.IsFailure)
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
         return NoContent();
     }
