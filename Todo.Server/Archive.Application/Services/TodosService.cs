@@ -1,8 +1,9 @@
-﻿namespace Archive.Api.Services;
+﻿namespace Archive.Application.Services;
 
 using Domain.Common.Entities;
-using Archive.Api.Persistance;
 using Microsoft.EntityFrameworkCore;
+using Archive.Application.Contracts;
+using Archive.Infrastructure.Persistance;
 
 public class TodosService : ITodosService
 {

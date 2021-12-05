@@ -1,5 +1,5 @@
-﻿using Archive.Api.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Archive.Application.Contracts;
 
 namespace Archive.Api.Controllers;
 

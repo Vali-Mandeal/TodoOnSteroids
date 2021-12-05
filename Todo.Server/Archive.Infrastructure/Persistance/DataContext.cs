@@ -1,4 +1,4 @@
-﻿namespace Archive.Api.Persistance;
+﻿namespace Archive.Infrastructure.Persistance;
 
 using Domain.Common.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +9,7 @@ public class DataContext : DbContext
             : base(options)
     {
     }
-
+        
     public DbSet<TodoItem> TodoItems { get; set; }
     public DbSet<Priority> Priorities { get; set; }
 
