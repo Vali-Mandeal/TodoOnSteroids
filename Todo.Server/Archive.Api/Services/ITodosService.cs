@@ -1,7 +1,6 @@
 ﻿namespace Archive.Api.Services;
 
-using Archive.Api.Entities;
-using Archive.Api.Helpers;
+using Domain.Common.Entities;
 
 public interface ITodosService
 {

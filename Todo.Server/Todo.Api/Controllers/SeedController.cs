@@ -1,24 +1,23 @@
 ﻿namespace Todo.Api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
-using Todo.Api.Persistence; 
-using Microsoft.EntityFrameworkCore;
-using Todo.Api.Helpers;
+using Todo.Infrastructure.Helpers;
+using Domain.Common.CustomFilters;
 
 [Route("api/[controller]")]
 [ApiController]
 public class SeedController : ControllerBase
 {
     private readonly ILogger _logger;
-    private readonly DataContext _context;
+    private readonly DbInitializer _dbInitializer;
 
-    public SeedController(ILogger<SeedController> logger, DataContext context)
+    public SeedController(ILogger<SeedController> logger, DbInitializer dbInitializer)
     {
         _logger = logger;
-        _context = context;
+        _dbInitializer = dbInitializer;
     }
 
-        
+    [TypeFilter(typeof(DevOnlyActionFilter))]
     [HttpPost]
     public async Task<IActionResult> SeedData()
     {
@@ -26,8 +25,7 @@ public class SeedController : ControllerBase
         {
             _logger.LogInformation("Seeding database...");
 
-            _context.Database.Migrate();
-            DbInitializer.SeedData(_context);
+            await _dbInitializer.MigrateAndSeed();
         }
         catch (Exception ex)
         {
@@ -42,4 +40,4 @@ public class SeedController : ControllerBase
         return Ok("Database migrated successfully!");
     }
 }
-
+    

@@ -1,36 +1,26 @@
-using Microsoft.EntityFrameworkCore;
-using Todo.Api.Persistence;
-using Todo.Api.Persistence.Repositories.Interfaces;
-using Todo.Api.Persistence.Repositories;
-using Todo.Api.Services;
+using Todo.Infrastructure.Extensions;
+using Todo.Application.Extensions;
+using Todo.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddLogging();
+builder.Services.AddOptions();
 
-builder.Services.AddDbContextPool<DataContext>(options =>
-    options.UseSqlServer
-    (
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+builder.Services.AddInfrastructureLayer(builder.Configuration);
+builder.Services.AddApplicationLayer(builder.Configuration);
+builder.Services.AddRepositories();
 
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddCors();
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
-builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
-
-builder.Services.AddScoped<ITodosService, TodosService>();
-builder.Services.AddScoped<IPriorityService, PriorityService>();
-
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -42,10 +32,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(builder =>
+app.UseCors(corsBuilder =>
 {
-    builder
-    .WithOrigins("http://localhost:8080")
+    corsBuilder
+    .WithOrigins(builder.Configuration["Cors:OriginUrl"])
     .AllowAnyMethod()
     .AllowAnyHeader();
 });

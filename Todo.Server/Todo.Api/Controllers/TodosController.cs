@@ -2,9 +2,10 @@
 
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Todo.Api.Services;
+using Todo.Application.Contracts;
 using Todo.Api.Dtos;
-using Todo.Api.Entities;
+using Domain.Common.Entities;
+using MassTransit;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -13,14 +14,16 @@ public class TodosController : ControllerBase
     private readonly ILogger _logger;
     private readonly ITodosService _todosService;
     private readonly IPriorityService _priorityService;
+    private readonly IPublishEndpoint _publishEndpoint;
     private readonly IMapper _mapper;
 
-    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService)
+    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _mapper = mapper;
         _todosService = todosService;
         _priorityService = priorityService;
+        _publishEndpoint = publishEndpoint;
     }
 
 
@@ -29,7 +32,21 @@ public class TodosController : ControllerBase
     [HttpGet]   
     public async Task<IActionResult> GetAll()
     {
+        //_logger.LogInformation(_rabbitMqConfig.Value.RabbitMqRootUri);
         var todos = await _todosService.GetAllAsync();
+
+        try
+        {
+            Random random = new Random();
+            var x = new TodoItem { Description = $"Nice try {random.Next(100, 999)}" };
+
+             await _publishEndpoint.Publish<TodoItem>(x);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+        }
+ 
 
         if (!todos.Any())
             return NoContent();
@@ -87,10 +104,10 @@ public class TodosController : ControllerBase
         if (todoItem is null)
             return NotFound("The todo you're looking for does not exist.");
 
-        var result = await _todosService.UpdateAsync(todoItem, todoItemForUpdateDto);
+        //var result = await _todosService.UpdateAsync(todoItem, todoItemForUpdateDto);
 
-        if (result.IsFailure)
-            return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
+        //if (result.IsFailure)
+        //    return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
         return NoContent();
     }

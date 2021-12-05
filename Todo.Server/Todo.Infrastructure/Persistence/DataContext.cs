@@ -1,15 +1,15 @@
-﻿namespace Archive.Api.Persistance;
-
+﻿namespace Todo.Infrastructure.Persistence;
+    
 using Domain.Common.Entities;
 using Microsoft.EntityFrameworkCore;
 
 public class DataContext : DbContext
 {
     public DataContext(DbContextOptions options)
-            : base(options)
+           : base(options)
     {
     }
-
+        
     public DbSet<TodoItem> TodoItems { get; set; }
     public DbSet<Priority> Priorities { get; set; }
 
@@ -18,3 +18,4 @@ public class DataContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
 }
+

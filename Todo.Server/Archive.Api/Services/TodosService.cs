@@ -1,6 +1,6 @@
 ﻿namespace Archive.Api.Services;
 
-using Archive.Api.Entities;
+using Domain.Common.Entities;
 using Archive.Api.Persistance;
 using Microsoft.EntityFrameworkCore;
 
