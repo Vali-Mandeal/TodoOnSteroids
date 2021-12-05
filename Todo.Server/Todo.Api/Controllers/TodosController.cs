@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Todo.Application.Contracts;
 using Todo.Api.Dtos;
 using Domain.Common.Entities;
-using MassTransit;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,18 +13,15 @@ public class TodosController : ControllerBase
     private readonly ILogger _logger;
     private readonly ITodosService _todosService;
     private readonly IPriorityService _priorityService;
-    private readonly IPublishEndpoint _publishEndpoint;
     private readonly IMapper _mapper;
 
-    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService, IPublishEndpoint publishEndpoint)
+    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService)
     {
         _logger = logger;
         _mapper = mapper;
         _todosService = todosService;
         _priorityService = priorityService;
-        _publishEndpoint = publishEndpoint;
     }
-
 
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TodoItemForReadDto>))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -34,19 +30,6 @@ public class TodosController : ControllerBase
     {
         var todos = await _todosService.GetAllAsync();
 
-        try
-        {
-            Random random = new Random();
-            var x = new TodoItem { Description = $"Nice try {random.Next(100, 999)}" };
-
-             await _publishEndpoint.Publish<TodoItem>(x);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-        }
- 
-
         if (!todos.Any())
             return NoContent();
 
@@ -54,7 +37,6 @@ public class TodosController : ControllerBase
 
         return Ok(todosForReturn);
     }
-
 
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TodoItemForReadDto))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -135,20 +117,12 @@ public class TodosController : ControllerBase
         if (todoItem is null)
             return NotFound();
 
-        // call service
+        var result = await _todosService.ArchiveAsync(todoItem);
 
-        throw new NotImplementedException();
-    }
+        if (result.IsFailure)
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
-    [HttpPost("{id}/unarchive")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]  
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Unarchive(Guid id)
-    {
-
-        // call service
-
-        throw new NotImplementedException();
+        return NoContent();
     }
 }
 

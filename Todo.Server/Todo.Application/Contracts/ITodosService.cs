@@ -10,7 +10,6 @@ public interface ITodosService
     Task<Result<TodoItem>> CreateAsync(TodoItem todoItem);
     Task<Result> UpdateAsync(TodoItem oldTodoItem, TodoItem newTodoItem);
     Task DeleteAsync(Guid id);
-    Task<Result> ArchiveAsync(Guid id); 
-    Task<Result> UnarchiveAsync(Guid id);
+    Task<Result> ArchiveAsync(TodoItem todoItem); 
 }
             

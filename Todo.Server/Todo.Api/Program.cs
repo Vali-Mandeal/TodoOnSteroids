@@ -6,14 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddLogging();
 builder.Services.AddOptions();
+builder.Services.AddLogging();
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
 builder.Services.AddRepositories();
-
-builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddCors();
 builder.Services.AddControllers();

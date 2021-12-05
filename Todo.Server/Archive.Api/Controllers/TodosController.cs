@@ -38,5 +38,21 @@ public class TodosController : ControllerBase
         return Ok(todoItem);
     }
 
+    [HttpPost("{id}/unarchive")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Unarchive(Guid id)
+    {
+        var todoItem = await _todosService.Get(id);
 
+        if (todoItem is null)
+            return NotFound();
+
+        var result = await _todosService.UnarchiveAsync(todoItem);
+
+        if (result.IsFailure)
+            return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
+
+        return NoContent();
+    }
 }

@@ -1,24 +1,27 @@
 ﻿namespace Todo.Application.Services;
 
 using Domain.Common.Entities;
-
+using Domain.Common.ServiceBusDtos;
 using Domain.Common.ResultHandling;
 using Todo.Application.Contracts;
 using Todo.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using MassTransit;
 
 public class TodosService : ITodosService
 {
-    ILogger<TodosService> _logger;
+    private readonly ILogger<TodosService> _logger;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public TodosService(ILogger<TodosService> logger, IMapper mapper, IUnitOfWork unitOfWork)
+    public TodosService(ILogger<TodosService> logger, IMapper mapper, IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public Task<TodoItem> GetAsync(Guid id)
@@ -33,9 +36,31 @@ public class TodosService : ITodosService
         return _unitOfWork.TodoItems.GetAllAsync();
     }
 
-    public Task<Result> ArchiveAsync(Guid id)
+    //TODO refactor order
+    public async Task<Result> ArchiveAsync(TodoItem todoItem)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Client calling ArchiveAsync in Service Layer.");
+
+        try
+        {
+            var todoItemForArchiving = _mapper.Map<TodoItemForArchiving>(todoItem);
+
+            await _publishEndpoint.Publish<TodoItemForArchiving>(todoItem);
+
+            _unitOfWork.TodoItems.Remove(todoItem);
+
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"ArchiveAsync failed in Service Layer. {ex.Message}");
+
+            return Result.Fail("Something went wrong. Could not archive todo.");
+        }
+
+        _logger.LogInformation("Successfully completed ArchiveAsync in Service Layer.");
+
+        return Result.Ok();
     }
 
     public async Task<Result<TodoItem>> CreateAsync(TodoItem todoItem)
