@@ -36,16 +36,6 @@ public class TodosService : ITodosService
             _logger.LogInformation($"Creation successfull in TodosService for todo with id {todoItem.Id}");
     }
 
-    public async Task DeleteAsync(Guid id)
-    {
-        _logger.LogInformation("Client calling DeleteAsync in Service Layer.");
-
-        var todoItem = await _unitOfWork.TodoItems.GetAsync(id);
-
-        _unitOfWork.TodoItems.Remove(todoItem);
-        await _unitOfWork.CompleteAsync();
-    }
-
     public async Task<TodoItem> GetAsync(Guid id)
     {
         _logger.LogInformation("Client calling GetAsync in Service Layer.");
@@ -58,7 +48,6 @@ public class TodosService : ITodosService
         return await _unitOfWork.TodoItems.GetAllAsync();
     }
 
-    //TODO refactor order
     public async Task<Result> UnarchiveAsync(TodoItem todoItem)
     {
         _logger.LogInformation("Client calling UnarchiveAsync in Service Layer.");
