@@ -24,41 +24,37 @@ public class TodosService : ITodosService
         _publishEndpoint = publishEndpoint;
     }
 
-    public Task<TodoItem> GetAsync(Guid id)
+    public async Task<TodoItem> GetAsync(Guid id)
     {
         _logger.LogInformation("Client calling GetAsync in Service Layer.");
-        return _unitOfWork.TodoItems.GetAsync(id);
+        return await _unitOfWork.TodoItems.GetAsync(id);
     }
 
-    public Task<IEnumerable<TodoItem>> GetAllAsync()
+    public async Task<IEnumerable<TodoItem>> GetAllAsync()
     {
         _logger.LogInformation("Client calling GetAllAsync in Service Layer.");
-        return _unitOfWork.TodoItems.GetAllAsync();
+        return await _unitOfWork.TodoItems.GetAllAsync();
     }
 
-    //TODO refactor order
     public async Task<Result> ArchiveAsync(TodoItem todoItem)
     {
         _logger.LogInformation("Client calling ArchiveAsync in Service Layer.");
 
-        try
+        _unitOfWork.TodoItems.Remove(todoItem);
+        var result = await _unitOfWork.CompleteAsync();
+
+        if (result.Success)
         {
             var todoItemForArchiving = _mapper.Map<TodoItemForArchiving>(todoItem);
-
-            await _publishEndpoint.Publish<TodoItemForArchiving>(todoItem);
-
-            _unitOfWork.TodoItems.Remove(todoItem);
-
-            await _unitOfWork.CompleteAsync();
+            await _publishEndpoint.Publish<TodoItemForArchiving>(todoItemForArchiving);
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError($"ArchiveAsync failed in Service Layer. {ex.Message}");
-
+            _logger.LogError($"ArchiveAsync failed in Service Layer. {result.Error}");
             return Result.Fail("Something went wrong. Could not archive todo.");
         }
-
-        _logger.LogInformation("Successfully completed ArchiveAsync in Service Layer.");
+   
+        _logger.LogInformation($"Successfully completed ArchiveAsync  for todo with id {todoItem.Id} in Service Layer.");
 
         return Result.Ok();
     }
@@ -91,11 +87,6 @@ public class TodosService : ITodosService
 
         _unitOfWork.TodoItems.Remove(todoItem);
         await _unitOfWork.CompleteAsync();
-    }
-
-    public Task<Result> UnarchiveAsync(Guid id)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<Result> UpdateAsync(TodoItem oldTodoItem, TodoItem newTodoItem)

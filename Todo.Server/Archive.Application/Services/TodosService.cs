@@ -1,64 +1,61 @@
 ﻿namespace Archive.Application.Services;
 
 using Domain.Common.Entities;
-using Microsoft.EntityFrameworkCore;
 using Archive.Application.Contracts;
-using Archive.Infrastructure.Persistance;
 using Microsoft.Extensions.Logging;
 using Domain.Common.ResultHandling;
 using Domain.Common.ServiceBusDtos;
 using MassTransit;
 using AutoMapper;
+using Archive.Application.Contracts.Persistence;
 
 public class TodosService : ITodosService
 {
     private readonly ILogger<TodosService> _logger;
     private readonly IMapper _mapper;
-    private readonly DataContext _dataContext;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public TodosService(ILogger<TodosService> logger, IMapper mapper, DataContext dataContext, IPublishEndpoint publishEndpoint)
+    public TodosService(ILogger<TodosService> logger, IMapper mapper, IUnitOfWork unitOfWork, IPublishEndpoint publishEndpoint)
     {
         _logger = logger;
         _mapper = mapper;
-        _dataContext = dataContext;
+        _unitOfWork = unitOfWork;
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task Create(TodoItem todoItem)
+    public async Task CreateAsync(TodoItem todoItem)
     {
-        _dataContext.Add(todoItem);
+        _unitOfWork.TodoItems.Add(todoItem);
 
-        var result = await _dataContext.SaveChangesAsync();
+        var result = await _unitOfWork.CompleteAsync();
 
-        if (result is 0)
-            _logger.LogError($"Creation failed in TodosService for todo with id {todoItem.Id}");
+        if (result.IsFailure)
+            _logger.LogError($"Creation failed in TodosService for todo with id {todoItem.Id}: {result.Error}");
         else
             _logger.LogInformation($"Creation successfull in TodosService for todo with id {todoItem.Id}");
     }
 
-    public async Task Delete(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        var todoItem = await _dataContext.FindAsync<TodoItem>(id);
+        _logger.LogInformation("Client calling DeleteAsync in Service Layer.");
 
-        _dataContext.Remove(todoItem);  
-        await _dataContext.SaveChangesAsync();
+        var todoItem = await _unitOfWork.TodoItems.GetAsync(id);
+
+        _unitOfWork.TodoItems.Remove(todoItem);
+        await _unitOfWork.CompleteAsync();
     }
 
-    public async Task<TodoItem> Get(Guid id)
+    public async Task<TodoItem> GetAsync(Guid id)
     {
-        return await _dataContext
-            .Set<TodoItem>()
-            .Include(todo => todo.Priority)
-            .FirstOrDefaultAsync(todo => todo.Id == id);
+        _logger.LogInformation("Client calling GetAsync in Service Layer.");
+        return await _unitOfWork.TodoItems.GetAsync(id);
     }
 
-    public async Task<IEnumerable<TodoItem>> GetAll()
+    public async Task<IEnumerable<TodoItem>> GetAllAsync()
     {
-        return await _dataContext
-            .Set<TodoItem>()
-            .Include(todo => todo.Priority)
-            .ToListAsync();
+        _logger.LogInformation("Client calling GetAllAsync in Service Layer.");
+        return await _unitOfWork.TodoItems.GetAllAsync();
     }
 
     //TODO refactor order
@@ -66,36 +63,22 @@ public class TodosService : ITodosService
     {
         _logger.LogInformation("Client calling UnarchiveAsync in Service Layer.");
 
-        var fail = Result.Fail("Something went wrong. Could not archive todo.");
+        _unitOfWork.TodoItems.Remove(todoItem);
+        var result = await _unitOfWork.CompleteAsync();
 
-        try
+        if (result.Success)
         {
             var todoItemForArchiving = _mapper.Map<TodoItemForUnarchiving>(todoItem);
-
-            await _publishEndpoint.Publish<TodoItemForUnarchiving>(todoItem);
-
-            var todoItemFromDb = await _dataContext.FindAsync<TodoItem>(todoItem.Id);
-
-            _dataContext.Remove(todoItem);
-            var result = await _dataContext.SaveChangesAsync();
-
-            if (result is 0)
-            {
-                _logger.LogError($"Deletion failed in TodosService for todo with id {todoItem.Id}");
-                return fail;
-            }
-            else
-                _logger.LogInformation($"Deletion successfull in TodosService for todo with id {todoItem.Id}");
-
+            await _publishEndpoint.Publish<TodoItemForUnarchiving>(todoItemForArchiving);
         }
-        catch (Exception ex)
+
+        else
         {
-            _logger.LogError($"ArchiveAsync failed in Service Layer. {ex.Message}");
-
-            return fail;
+            _logger.LogError($"UnarchiveAsync failed in Service Layer for todo with id {todoItem.Id}: {result.Error}");
+            return Result.Fail("Something went wrong. Could not unarchive todo.");
         }
-
-        _logger.LogInformation("Successfully completed ArchiveAsync in Service Layer.");
+    
+        _logger.LogInformation($"Successfully completed Unarchiveasync for todo with id {todoItem.Id} in Service Layer.");
 
         return Result.Ok();
     }

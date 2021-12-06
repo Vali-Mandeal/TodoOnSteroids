@@ -1,9 +1,8 @@
-﻿namespace Todo.Api.Extensions;
+﻿namespace Archive.Api.Extensions;
 
 using Microsoft.Extensions.DependencyInjection;
-using Todo.Infrastructure.Persistence;
-using Todo.Application.Contracts.Persistence;
-using Todo.Infrastructure.Persistence.Repositories;
+using Archive.Application.Contracts.Persistence;
+using Archive.Infrastructure.Persistence.Repositories;
 
 public static class ServiceCollection
 {
@@ -16,4 +15,3 @@ public static class ServiceCollection
         return services;
     }
 }
-        

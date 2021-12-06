@@ -19,7 +19,7 @@ public class TodosController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var todoItems = await _todosService.GetAll();
+        var todoItems = await _todosService.GetAllAsync();
 
         if (!todoItems.Any())
             return NoContent();
@@ -30,7 +30,7 @@ public class TodosController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var todoItem = await _todosService.Get(id);
+        var todoItem = await _todosService.GetAsync(id);
 
         if (todoItem is null)
             return NotFound();
@@ -43,7 +43,7 @@ public class TodosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Unarchive(Guid id)
     {
-        var todoItem = await _todosService.Get(id);
+        var todoItem = await _todosService.GetAsync(id);
 
         if (todoItem is null)
             return NotFound();

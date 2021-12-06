@@ -5,9 +5,9 @@ using Domain.Common.ResultHandling;
 
 public interface ITodosService
 {
-    Task<TodoItem> Get(Guid id);    
-    Task<IEnumerable<TodoItem>> GetAll();
-    Task Create(TodoItem todoItem);
-    Task Delete(Guid id);
+    Task<TodoItem> GetAsync(Guid id);    
+    Task<IEnumerable<TodoItem>> GetAllAsync();
+    Task CreateAsync(TodoItem todoItem);
+    Task DeleteAsync(Guid id);
     Task<Result> UnarchiveAsync(TodoItem todoItem);
 }

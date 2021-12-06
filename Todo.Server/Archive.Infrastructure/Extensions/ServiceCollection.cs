@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Archive.Infrastructure.Persistance;
+using Archive.Infrastructure.Persistence;
 
 public static class ServiceCollection
 {

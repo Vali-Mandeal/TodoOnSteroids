@@ -1,5 +1,6 @@
 using Archive.Application.Extensions;
 using Archive.Infrastructure.Extensions;
+using Archive.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddLogging();
 
+builder.Services.AddRepositories();
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
 
+builder.Services.AddMvc();
 builder.Services.AddCors();
 
 builder.Services.AddControllers();

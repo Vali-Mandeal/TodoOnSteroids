@@ -1,4 +1,4 @@
-﻿namespace Archive.Infrastructure.Persistance;
+﻿namespace Archive.Infrastructure.Persistence;
 
 using Domain.Common.Entities;
 using Microsoft.EntityFrameworkCore;

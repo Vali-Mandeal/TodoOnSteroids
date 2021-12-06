@@ -1,4 +1,4 @@
-﻿namespace Todo.Application.Contracts.Persistence;
+﻿namespace Archive.Application.Contracts.Persistence;
 
 using Domain.Common.ResultHandling;
 

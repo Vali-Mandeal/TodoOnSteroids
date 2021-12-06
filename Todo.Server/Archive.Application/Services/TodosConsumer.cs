@@ -28,7 +28,7 @@ public class TodosConsumer : IConsumer<TodoItemForArchiving>
 
         _logger.LogInformation($"Received from message queue todo with id: {todoItem.Id}. Saving in database.");
 
-        await _todosService.Create(todoItem);
+        await _todosService.CreateAsync(todoItem);
     }
 }
 
