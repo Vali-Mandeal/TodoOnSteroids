@@ -5,7 +5,7 @@ using Domain.Common.ResultHandling;
 
 public interface ITodosService
 {
-    Task<TodoItem> GetAsync(Guid id);
+    Task<TodoItem> GetAsync(Guid id, bool cacheWriteDisabled = false);
     Task<IEnumerable<TodoItem>> GetAllAsync();
     Task<Result<TodoItem>> CreateAsync(TodoItem todoItem);
     Task<Result> UpdateAsync(TodoItem oldTodoItem, TodoItem newTodoItem);

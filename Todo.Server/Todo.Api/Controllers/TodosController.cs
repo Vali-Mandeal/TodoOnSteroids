@@ -80,7 +80,7 @@ public class TodosController : ControllerBase
         if (priority is null)
             return BadRequest("Selected priority is invalid.");
 
-        var oldTodoItem = await _todosService.GetAsync(id);
+        var oldTodoItem = await _todosService.GetAsync(id, cacheWriteDisabled: true);
 
         if (oldTodoItem is null)
             return NotFound("The todo you're looking for does not exist.");
@@ -112,7 +112,7 @@ public class TodosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]   
     public async Task<IActionResult> Archive(Guid id)
     {
-        var todoItem = await _todosService.GetAsync(id);
+        var todoItem = await _todosService.GetAsync(id, cacheWriteDisabled:true);
 
         if (todoItem is null)
             return NotFound();
