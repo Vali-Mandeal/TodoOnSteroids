@@ -5,7 +5,7 @@
         <va-list-item v-for="todo in todos" :key="todo.id">
           <va-list-item-section>
             <va-list-item-label>
-              {{ todo.name }}
+              {{ todo.description }}
             </va-list-item-label>
           </va-list-item-section>
           <va-list-item-section icon>
@@ -18,14 +18,22 @@
 </template>
 
 <script>
+import { computed } from '@vue/reactivity';
 import { useStore } from 'vuex';
 export default {
   name: 'ArchivedList',
   setup() {
     const store = useStore();
 
+    const todos = computed(() => {
+      return store.getters['archiveStore/getToDos'];
+    });
+    if (todos.value == null) {
+      store.dispatch('archiveStore/fetchToDos');
+    }
+
     return {
-      todos: store.state.archivedTodos,
+      todos,
       toggleActive(todo) {
         store.commit('toggleActive', todo.id);
       },

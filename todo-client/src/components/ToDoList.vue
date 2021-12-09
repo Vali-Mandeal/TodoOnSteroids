@@ -5,7 +5,7 @@
         <va-list-item v-for="todo in todos" :key="todo.id">
           <va-list-item-section>
             <va-list-item-label>
-              {{ todo.name }}
+              {{ todo.description }}
             </va-list-item-label>
           </va-list-item-section>
           <va-list-item-section icon>
@@ -14,9 +14,9 @@
               color="#A64253"
               @click="sendToArchive(todo)"
             />
-            <va-icon v-if="todo.done == true" name="done" color="#0A1128" />
+            <va-icon v-if="todo.isDone == true" name="done" color="#0A1128" />
             <va-icon
-              v-if="todo.done == false"
+              v-if="todo.isDone == false"
               name="check_box_outline_blank"
               color="#0A1128"
               @click="toggleDone(todo)"
@@ -29,19 +29,27 @@
 </template>
 
 <script>
+import { computed } from '@vue/reactivity';
 import { useStore } from 'vuex';
 export default {
   name: 'ToDoList',
   setup() {
     const store = useStore();
 
+    const todos = computed(() => {
+      return store.getters['todoStore/getToDos'];
+    });
+    if (todos.value == null) {
+      store.dispatch('todoStore/fetchToDos');
+    }
+
     return {
-      todos: store.state.todos,
+      todos,
       toggleDone(todo) {
-        store.commit('toggleDone', todo.id);
+        store.dispatch('todoStore/toggleDone', todo);
       },
       sendToArchive(todo) {
-        store.commit('sendToArchive', todo.id);
+        store.dispatch('todoStore/sendToArchive', todo.id);
       },
     };
   },
