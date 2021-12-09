@@ -17,6 +17,7 @@ const ToDos = {
   create: (body) => requests.post('/todos', body),
   update: (id, body) => requests.put(`/todos/${id}`, body),
   delete: (id) => requests.del(`/todos/${id}`),
+  archive: (id) => requests.put(`/todos/${id}/archive`, id),
 };
 
 const agent = {
