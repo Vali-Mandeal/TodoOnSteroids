@@ -1,4 +1,6 @@
-﻿namespace Archive.Infrastructure.Extensions;
+﻿using Archive.Infrastructure.Helpers;
+
+namespace Archive.Infrastructure.Extensions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,8 @@ public static class ServiceCollection
 {
     public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<DbInitializer>();
+
         services.AddDbContextPool<DataContext>(options =>
             options.UseSqlServer
             (

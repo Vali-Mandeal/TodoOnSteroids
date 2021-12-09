@@ -30,7 +30,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors(corsBuilder =>
 {
     corsBuilder
-    .WithOrigins(builder.Configuration["Cors:OriginUrl"])
+    .WithOrigins(builder.Configuration["Cors:TodoUrl"], builder.Configuration["Cors:ClientUrl"])
     .AllowAnyMethod()
     .AllowAnyHeader();
 });
