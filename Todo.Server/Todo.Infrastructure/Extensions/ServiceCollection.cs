@@ -8,6 +8,8 @@ using Todo.Infrastructure.Helpers;
 using StackExchange.Redis;
 using Todo.Application.Contracts.RedisCache;
 using Todo.Infrastructure.Persistence.RedisCache;
+using Todo.Application.Contracts.Persistence;
+using Todo.Infrastructure.Persistence.Repositories;
 
 public static class ServiceCollection   
 {
@@ -27,7 +29,17 @@ public static class ServiceCollection
                 x => x.MigrationsAssembly(typeof(DataContext).Assembly.FullName)
             ));
 
+        var serviceProvider = services.BuildServiceProvider();
+        var dataContext = serviceProvider.GetService<DataContext>();
+
+        dataContext.Database.Migrate();
+
         services.AddScoped<IRedisRepository, RedisRepository>();
+
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ITodoItemRepository, TodoItemRepository>();
+        services.AddScoped<IPriorityRepository, PriorityRepository>();
 
         return services;
     }

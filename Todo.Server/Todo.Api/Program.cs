@@ -1,6 +1,5 @@
-using Todo.Infrastructure.Extensions;
 using Todo.Application.Extensions;
-using Todo.Api.Extensions;
+using Todo.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,14 +11,12 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
-builder.Services.AddRepositories();
 
 builder.Services.AddCors();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 var app = builder.Build();
 
