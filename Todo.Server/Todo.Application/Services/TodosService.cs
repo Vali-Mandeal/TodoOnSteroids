@@ -10,6 +10,8 @@ using AutoMapper;
 using MassTransit;
 using Todo.Application.Contracts.RedisCache;
 using System.Text.Json;
+using Microsoft.AspNetCore.SignalR;
+using Todo.Application.Hubs;
 
 public class TodosService : ITodosService
 {
@@ -18,6 +20,7 @@ public class TodosService : ITodosService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRedisRepository _redisRepository;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IHubContext<TodoHub> _hubContext;
     private const string RedisCacheKeyForList = "all";
 
     public TodosService(
@@ -25,7 +28,8 @@ public class TodosService : ITodosService
             IMapper mapper, 
             IUnitOfWork unitOfWork, 
             IRedisRepository redisRepository, 
-            IPublishEndpoint publishEndpoint
+            IPublishEndpoint publishEndpoint,
+            IHubContext<TodoHub> hubContext
         )
     {
         _logger = logger;
@@ -33,6 +37,7 @@ public class TodosService : ITodosService
         _unitOfWork = unitOfWork;
         _redisRepository = redisRepository;
         _publishEndpoint = publishEndpoint;
+        _hubContext = hubContext;
     }
 
     public async Task<TodoItem> GetAsync(Guid id, bool disableCache = false)
@@ -95,6 +100,8 @@ public class TodosService : ITodosService
 
         var createdTodo = await _unitOfWork.TodoItems.GetAsync(todoItem.Id);
 
+        await _hubContext.Clients.All.SendAsync("CreatedTodo", createdTodo);
+
         await _redisRepository.DeleteStringValue(RedisCacheKeyForList);
 
         _logger.LogInformation($"CreateAsync succesful in Service Layer for TodoId: {createdTodo.Id}");
@@ -116,6 +123,8 @@ public class TodosService : ITodosService
             return Result.Fail("Could not update todo.");
         }
 
+        await _hubContext.Clients.All.SendAsync("UpdatedTodo", oldTodoItem);
+
         await _redisRepository.DeleteStringValue(oldTodoItem.Id.ToString());
         await _redisRepository.DeleteStringValue(RedisCacheKeyForList);
 
@@ -133,6 +142,8 @@ public class TodosService : ITodosService
 
         _unitOfWork.TodoItems.Remove(todoItem);
         await _unitOfWork.CompleteAsync();
+
+        await _hubContext.Clients.All.SendAsync("DeletedTodo", todoItem);
 
         await _redisRepository.DeleteStringValue(id.ToString());
         await _redisRepository.DeleteStringValue(RedisCacheKeyForList);
@@ -159,7 +170,9 @@ public class TodosService : ITodosService
         await _redisRepository.DeleteStringValue(todoItem.Id.ToString());
         await _redisRepository.DeleteStringValue(RedisCacheKeyForList);
 
-        _logger.LogInformation($"Successfully completed ArchiveAsync  for todo with id {todoItem.Id} in Service Layer.");
+        await _hubContext.Clients.All.SendAsync("ArchivedTodo", todoItem);
+
+        _logger.LogInformation($"Successfully completed ArchiveAsync for todo with id {todoItem.Id} in Service Layer.");
 
         return Result.Ok();
     }

@@ -1,5 +1,6 @@
 using Todo.Application.Extensions;
 using Todo.Infrastructure.Extensions;
+using Todo.Application.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptions();
 builder.Services.AddLogging();
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddSignalR();
 
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
@@ -39,5 +42,10 @@ app.UseCors(corsBuilder =>
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<TodoHub>("/todoHub");
+});
 
 app.Run();
