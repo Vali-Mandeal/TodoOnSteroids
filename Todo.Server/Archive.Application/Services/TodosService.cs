@@ -71,4 +71,15 @@ public class TodosService : ITodosService
 
         return Result.Ok();
     }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var todoItem = await _unitOfWork.TodoItems.GetAsync(id);
+
+        if (todoItem is null)
+            return;
+      
+        _unitOfWork.TodoItems.Remove(todoItem);
+        await _unitOfWork.CompleteAsync();
+    }
 }

@@ -9,4 +9,5 @@ public interface ITodosService
     Task<IEnumerable<TodoItem>> GetAllAsync();
     Task CreateAsync(TodoItem todoItem);
     Task<Result> UnarchiveAsync(TodoItem todoItem);
+    Task DeleteAsync(Guid id);
 }

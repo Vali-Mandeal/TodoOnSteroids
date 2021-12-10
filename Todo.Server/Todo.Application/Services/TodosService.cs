@@ -128,6 +128,9 @@ public class TodosService : ITodosService
 
         var todoItem = await _unitOfWork.TodoItems.GetAsync(id);
 
+        if (todoItem is null)
+            return;
+
         _unitOfWork.TodoItems.Remove(todoItem);
         await _unitOfWork.CompleteAsync();
 
