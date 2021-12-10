@@ -10,6 +10,7 @@
           </va-list-item-section>
           <va-list-item-section icon>
             <va-icon name="reply" color="gray" @click="unarchive(todo)" />
+            <va-icon name="clear" color="red" @click="deleteTodo(todo)" />
           </va-list-item-section>
         </va-list-item>
       </transition-group>
@@ -36,6 +37,9 @@ export default {
       todos,
       unarchive(todo) {
         store.dispatch('archiveStore/unarchive', todo.id);
+      },
+      deleteTodo(todo) {
+        store.dispatch('archiveStore/deleteTodo', todo.id);
       },
     };
   },

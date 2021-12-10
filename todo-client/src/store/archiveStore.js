@@ -25,6 +25,11 @@ export default {
         console.log(error);
       });
     },
+    async deleteTodo(_, id) {
+      await agent.Archive.delete(id).catch((error) => {
+        console.log(error);
+      });
+    },
   },
   getters: {
     getToDos(state) {

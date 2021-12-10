@@ -13,7 +13,7 @@ const archiveApiBaseUrl = axios.create({
 const responseBody = (response) => response.data;
 
 const todoRequest = {
-  get: (a) => todoApiBaseUrl.get(a).then(responseBody),
+  get: (url) => todoApiBaseUrl.get(url).then(responseBody),
   post: (url, body) => todoApiBaseUrl.post(url, body).then(responseBody),
   put: (url, body) => todoApiBaseUrl.put(url, body).then(responseBody),
   del: (url) => todoApiBaseUrl.delete(url).then(responseBody),
@@ -29,14 +29,16 @@ const ToDos = {
 };
 
 const archiveRequest = {
-  get: (a) => archiveApiBaseUrl.get(a).then(responseBody),
+  get: (url) => archiveApiBaseUrl.get(url).then(responseBody),
   post: (url, body) => archiveApiBaseUrl.post(url, body).then(responseBody),
+  del: (url, body) => archiveApiBaseUrl.delete(url, body).then(responseBody),
 };
 
 const Archive = {
   list: () => archiveRequest.get('/todos'),
   details: (id) => archiveRequest.get(`/todos/${id}`),
   unarchive: (id) => archiveRequest.post(`todos/${id}/unarchive`, id),
+  delete: (id) => archiveRequest.del(`/todos/${id}`),
 };
 
 const agent = {
