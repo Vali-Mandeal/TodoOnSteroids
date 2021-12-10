@@ -170,7 +170,15 @@ public class TodosService : ITodosService
         await _redisRepository.DeleteStringValue(todoItem.Id.ToString());
         await _redisRepository.DeleteStringValue(RedisCacheKeyForList);
 
-        await _hubContext.Clients.All.SendAsync("ArchivedTodo", todoItem);
+        try
+        {
+            await _hubContext.Clients.All.SendAsync("ArchivedTodo", todoItem);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
         _logger.LogInformation($"Successfully completed ArchiveAsync for todo with id {todoItem.Id} in Service Layer.");
 

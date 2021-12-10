@@ -10,6 +10,59 @@
   </router-view>
 </template>
 
+<script>
+import { useStore } from 'vuex';
+import * as signalR from '@aspnet/signalr';
+import { onMounted } from '@vue/runtime-core';
+export default {
+  setup() {
+    const store = useStore();
+
+    const createdTodo = 'CreatedTodo';
+    const updatedTodo = 'UpdatedTodo';
+    const deletedTodo = 'DeletedTodo';
+    const archivedTodo = 'ArchivedTodo';
+    let connection;
+
+    onMounted(() => {
+      setHubConnection();
+      startHubConnection();
+      subscribeToHubEvents(createdTodo);
+      subscribeToHubEvents(updatedTodo);
+      subscribeToHubEvents(deletedTodo);
+      subscribeToHubEvents(archivedTodo);
+    });
+
+    const setHubConnection = () => {
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl('http://localhost:5125/todoHub')
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+    };
+
+    const startHubConnection = () => {
+      connection.start().catch(function (err) {
+        return console.error(err.toString());
+      });
+    };
+    const subscribeToHubEvents = (eventName) => {
+      connection.on(eventName, (message) => {
+        console.log('a venit eventu:', eventName, message);
+
+        if (eventName == createdTodo)
+          store.dispatch('todoStore/onAddTodoEvent', message);
+        if (eventName == updatedTodo)
+          store.dispatch('todoStore/onUpdateTodoEvent', message);
+        if (eventName == deletedTodo)
+          store.dispatch('todoStore/onDeleteTodoEvent', message);
+        if (eventName == archivedTodo)
+          store.dispatch('todoStore/onArchiveTodoEvent', message);
+      });
+    };
+  },
+};
+</script>
+
 <style>
 body {
   background-image: linear-gradient(to right, #6e44ff 0%, #b892ff 100%);

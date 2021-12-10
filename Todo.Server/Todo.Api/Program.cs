@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddCors();
+
 builder.Services.AddOptions();
 builder.Services.AddLogging();
 builder.Services.AddAutoMapper(typeof(Program));
@@ -15,7 +17,6 @@ builder.Services.AddSignalR();
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
 
-builder.Services.AddCors();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -35,9 +36,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors(corsBuilder =>
 {
     corsBuilder
-    .WithOrigins(builder.Configuration["Cors:OriginUrl"])
-    .AllowAnyMethod()
-    .AllowAnyHeader();
+        .SetIsOriginAllowed(origin => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
 });
 
 
