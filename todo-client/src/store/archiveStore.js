@@ -1,4 +1,7 @@
+import agent from '@/api/agent';
+
 export default {
+  namespaced: true,
   state: {
     archivedTodos: null,
   },
@@ -7,9 +10,24 @@ export default {
       state.archivedTodos = todos;
     },
   },
-  actions: {},
+  actions: {
+    async fetchToDos({ commit }) {
+      await agent.Archive.list()
+        .then((response) => {
+          commit('saveTodos', response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    async unarchive(_, id) {
+      await agent.Archive.unarchive(id).catch((error) => {
+        console.log(error);
+      });
+    },
+  },
   getters: {
-    getArchived(state) {
+    getToDos(state) {
       return state.archivedTodos;
     },
   },

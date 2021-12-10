@@ -1,4 +1,4 @@
-import agent from '@/api/todosAgent';
+import agent from '@/api/agent';
 
 export default {
   namespaced: true,
@@ -21,13 +21,16 @@ export default {
         });
     },
     async toggleDone(_, todo) {
-      //not implemented
+      todo.isDone = !todo.isDone;
+      todo['priorityId'] = todo.priority.id;
+
       await agent.ToDos.update(todo.id, todo).catch((error) => {
         console.log(error);
       });
     },
     async sendToArchive(_, id) {
       await agent.ToDos.archive(id).catch((error) => {
+        //update will be in websockets
         console.log(error);
       });
     },

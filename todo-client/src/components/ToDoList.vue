@@ -14,7 +14,12 @@
               color="#A64253"
               @click="sendToArchive(todo)"
             />
-            <va-icon v-if="todo.isDone == true" name="done" color="#0A1128" />
+            <va-icon
+              v-if="todo.isDone == true"
+              name="done"
+              color="#0A1128"
+              @click="toggleDone(todo)"
+            />
             <va-icon
               v-if="todo.isDone == false"
               name="check_box_outline_blank"

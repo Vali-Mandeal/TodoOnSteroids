@@ -9,7 +9,7 @@
             </va-list-item-label>
           </va-list-item-section>
           <va-list-item-section icon>
-            <va-icon name="reply" color="gray" @click="toggleActive(todo)" />
+            <va-icon name="reply" color="gray" @click="unarchive(todo)" />
           </va-list-item-section>
         </va-list-item>
       </transition-group>
@@ -34,8 +34,8 @@ export default {
 
     return {
       todos,
-      toggleActive(todo) {
-        store.commit('toggleActive', todo.id);
+      unarchive(todo) {
+        store.dispatch('archiveStore/unarchive', todo.id);
       },
     };
   },
