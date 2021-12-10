@@ -31,6 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseCors(corsBuilder =>
 {
     corsBuilder
@@ -41,11 +42,13 @@ app.UseCors(corsBuilder =>
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseRouting();
 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<TodoHub>("/todoHub");
 });
+
+app.MapControllers();
 
 app.Run();
