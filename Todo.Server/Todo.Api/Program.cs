@@ -1,6 +1,6 @@
 using Todo.Application.Extensions;
 using Todo.Infrastructure.Extensions;
-using Todo.Application.Hubs;
+using Todo.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,9 +40,10 @@ app.UseCors(corsBuilder =>
     .AllowAnyHeader();
 });
 
-app.UseAuthorization();
 
 app.UseRouting();
+
+app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {
