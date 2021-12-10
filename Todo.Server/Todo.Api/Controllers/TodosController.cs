@@ -99,10 +99,7 @@ public class TodosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var todoItem = await _todosService.GetAsync(id);
-
-        if (todoItem is not null)
-            await _todosService.DeleteAsync(id);
+        await _todosService.DeleteAsync(id);
 
         return NoContent();
     }

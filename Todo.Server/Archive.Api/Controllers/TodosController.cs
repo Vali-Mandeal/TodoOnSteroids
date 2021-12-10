@@ -55,4 +55,13 @@ public class TodosController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await _todosService.DeleteAsync(id);
+
+        return NoContent();
+    }
 }
