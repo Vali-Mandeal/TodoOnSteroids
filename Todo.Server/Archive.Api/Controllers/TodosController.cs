@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Archive.Application.Contracts;
+using Microsoft.AspNetCore.SignalR;
+using Archive.Api.Hubs;
 
 namespace Archive.Api.Controllers;
 
@@ -9,11 +11,13 @@ public class TodosController : ControllerBase
 {
     private readonly ILogger<TodosController> _logger;
     private readonly ITodosService _todosService;
+    private readonly IHubContext<ArchiveHub> _hubContext;
 
-    public TodosController(ILogger<TodosController> logger, ITodosService todosService)
+    public TodosController(ILogger<TodosController> logger, ITodosService todosService, IHubContext<ArchiveHub> hubContext)
     {
         _logger = logger;
         _todosService = todosService;
+        _hubContext = hubContext;
     }
 
     [HttpGet]
@@ -53,6 +57,8 @@ public class TodosController : ControllerBase
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
+        await _hubContext.Clients.All.SendAsync("UnarchivedTodo", id);
+
         return NoContent();
     }
 
@@ -61,6 +67,8 @@ public class TodosController : ControllerBase
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _todosService.DeleteAsync(id);
+
+        await _hubContext.Clients.All.SendAsync("DeletedTodo", id);
 
         return NoContent();
     }

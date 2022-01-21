@@ -1,6 +1,8 @@
 ﻿namespace Todo.Api.Hubs;
 
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+
 
 public class TodoHub : Hub
 {
@@ -15,24 +17,24 @@ public class TodoHub : Hub
 
     public override Task OnConnectedAsync()
     {
-        //var user = _connectedUsers.FirstOrDefault(Context.ConnectionId);
+        var user = _connectedUsers.FirstOrDefault(Context.ConnectionId);
 
-        //if (user is null)
-        //    _connectedUsers.Add(Context.ConnectionId);
+        if (user is null)
+            _connectedUsers.Add(Context.ConnectionId);
 
-        _logger.LogInformation($"User {Context.ConnectionId} connected");
+        _logger.LogInformation($"User {Context.ConnectionId} connected. Active connections: {_connectedUsers.Count}");
 
         return base.OnConnectedAsync();
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public override Task OnDisconnectedAsync(Exception exception)
     {
-        //var user = _connectedUsers.FirstOrDefault(Context.ConnectionId);
+        var user = _connectedUsers.FirstOrDefault(Context.ConnectionId);
 
-        //if (user is not null)
-        //    _connectedUsers.Remove(Context.ConnectionId);
+        if (user is not null)
+            _connectedUsers.Remove(Context.ConnectionId);
 
-        _logger.LogInformation($"User {Context.ConnectionId} disconnected.");
+        _logger.LogInformation($"User {Context.ConnectionId} disconnected. Remaining active connections: {_connectedUsers.Count}");
 
         return base.OnDisconnectedAsync(exception);
     }

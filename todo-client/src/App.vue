@@ -20,46 +20,73 @@ export default {
 
     const createdTodo = 'CreatedTodo';
     const updatedTodo = 'UpdatedTodo';
-    const deletedTodo = 'DeletedTodo';
+    // const deletedTodo = 'DeletedTodo';
     const archivedTodo = 'ArchivedTodo';
-    let connection;
+    const todoEvents = ['CreatedTodo', 'UpdatedTodo', 'ArchivedTodo'];
+    const archiveEvents = ['UnarchivedTodo', 'DeletedTodo'];
+
+    let todoConnection;
+    let archiveConnection;
 
     onMounted(() => {
-      setHubConnection();
-      startHubConnection();
-      subscribeToHubEvents(createdTodo);
-      subscribeToHubEvents(updatedTodo);
-      subscribeToHubEvents(deletedTodo);
-      subscribeToHubEvents(archivedTodo);
+      setHubConnections();
+      startHubConnections();
+
+      todoEvents.forEach(todoEvent => {
+        subscribeToTodoEvents(todoEvent);
+      });
+
+      archiveEvents.forEach(todoEvent => {
+          subscribeToArchiveEvents(todoEvent);
+      });
     });
 
-    const setHubConnection = () => {
-      connection = new signalR.HubConnectionBuilder()
+    const setHubConnections = () => {
+      todoConnection = new signalR.HubConnectionBuilder()
         .withUrl('http://localhost:5125/todoHub')
         .configureLogging(signalR.LogLevel.Information)
         .build();
+
+      archiveConnection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5257/archiveHub')
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
     };
 
-    const startHubConnection = () => {
-      connection.start().catch(function (err) {
-        return console.error(err.toString());
+    const startHubConnections = () => {
+      todoConnection
+        .start()
+        .catch(function (err) {
+          return console.error(err.toString());
+      });
+
+      archiveConnection
+        .start()
+        .catch(function (err) {
+          return console.error(err.toString());
       });
     };
-    const subscribeToHubEvents = (eventName) => {
-      connection.on(eventName, (message) => {
-        console.log('a venit eventu:', eventName, message);
+
+    const subscribeToTodoEvents = (eventName) => {
+      todoConnection.on(eventName, (message) => {
+        console.log('a venit eventu din Todo:', eventName, message);
 
         if (eventName == createdTodo)
           store.dispatch('todoStore/onAddTodoEvent', message);
         if (eventName == updatedTodo)
           store.dispatch('todoStore/onUpdateTodoEvent', message);
-        if (eventName == deletedTodo)
-          store.dispatch('todoStore/onDeleteTodoEvent', message);
         if (eventName == archivedTodo)
           store.dispatch('todoStore/onArchiveTodoEvent', message);
       });
     };
+
+    const subscribeToArchiveEvents = (eventName) => {
+      archiveConnection.on(eventName, (message) => {
+        console.log('a venit eventu din archive:', eventName, message);
+      });
+    };
   },
+
 };
 </script>
 

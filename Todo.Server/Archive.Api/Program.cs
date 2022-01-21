@@ -1,3 +1,4 @@
+using Archive.Api.Hubs;
 using Archive.Application.Extensions;
 using Archive.Infrastructure.Extensions;
 
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddLogging();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddApplicationLayer(builder.Configuration);
@@ -29,13 +32,25 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(corsBuilder =>
 {
+    //corsBuilder
+    //.WithOrigins(builder.Configuration["Cors:TodoUrl"], builder.Configuration["Cors:ClientUrl"])
+    //.AllowAnyMethod()
+    //.AllowAnyHeader();
     corsBuilder
-    .WithOrigins(builder.Configuration["Cors:TodoUrl"], builder.Configuration["Cors:ClientUrl"])
-    .AllowAnyMethod()
-    .AllowAnyHeader();
+      .SetIsOriginAllowed(origin => true)
+      .AllowAnyMethod()
+      .AllowAnyHeader()
+      .AllowCredentials();
 });
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ArchiveHub>("/archiveHub");
+});
 
 app.MapControllers();
 

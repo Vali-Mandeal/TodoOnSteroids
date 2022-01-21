@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Todo.Application.Contracts;
 using Todo.Api.Dtos;
 using Domain.Common.Entities;
+using Microsoft.AspNetCore.SignalR;
+using Todo.Api.Hubs;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -13,14 +15,16 @@ public class TodosController : ControllerBase
     private readonly ILogger _logger;
     private readonly ITodosService _todosService;
     private readonly IPriorityService _priorityService;
+    private readonly IHubContext<TodoHub> _hubContext;
     private readonly IMapper _mapper;
 
-    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService)
+    public TodosController(ILogger<TodosController> logger, IMapper mapper, ITodosService todosService, IPriorityService priorityService, IHubContext<TodoHub> hubContext)
     {
         _logger = logger;
         _mapper = mapper;
         _todosService = todosService;
         _priorityService = priorityService;
+        _hubContext = hubContext;
     }
 
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TodoItemForReadDto>))]
@@ -68,6 +72,8 @@ public class TodosController : ControllerBase
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
+        await _hubContext.Clients.All.SendAsync("CreatedTodo", result.Value);
+
         return CreatedAtRoute("GetTodo", new { id = result.Value.Id }, result.Value);
     }
 
@@ -92,6 +98,8 @@ public class TodosController : ControllerBase
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
 
+        await _hubContext.Clients.All.SendAsync("UpdatedTodo", updatedTodo);
+
         return NoContent();
     }
 
@@ -100,6 +108,11 @@ public class TodosController : ControllerBase
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _todosService.DeleteAsync(id);
+
+        var item = await _todosService.GetAsync(id);
+        //TODO: simplify to work only with id
+        if (item is not null)
+            await _hubContext.Clients.All.SendAsync("DeletedTodo", item);
 
         return NoContent();
     }
@@ -118,6 +131,8 @@ public class TodosController : ControllerBase
 
         if (result.IsFailure)
             return StatusCode(StatusCodes.Status500InternalServerError, result.Error);
+
+        await _hubContext.Clients.All.SendAsync("ArchivedTodo", todoItem);
 
         return NoContent();
     }

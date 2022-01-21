@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
+﻿namespace Archive.Api.Hubs;
 
-namespace Todo.Application.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
-public class TodoHub : Hub
+public class ArchiveHub : Hub
 {
     private readonly ILogger _logger;
 
     private static List<string> _connectedUsers = new();
 
-    public TodoHub(ILogger<TodoHub> logger)
+    public ArchiveHub(ILogger<ArchiveHub> logger)
     {
         _logger = logger;
     }
@@ -26,7 +25,7 @@ public class TodoHub : Hub
         return base.OnConnectedAsync();
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public override Task OnDisconnectedAsync(Exception exception)
     {
         var user = _connectedUsers.FirstOrDefault(Context.ConnectionId);
 
@@ -37,5 +36,4 @@ public class TodoHub : Hub
 
         return base.OnDisconnectedAsync(exception);
     }
-
 }
