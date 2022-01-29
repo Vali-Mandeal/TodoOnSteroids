@@ -3,7 +3,7 @@ import agent from '@/api/agent';
 export default {
   namespaced: true,
   state: {
-    todos: null,
+    todos: new Array(),
   },
   mutations: {
     saveTodos(state, todos) {
@@ -13,25 +13,29 @@ export default {
       state.todos.push(todo);
     },
     updateTodo(state, todo) {
-      const index = state.todos.findIndex((t) => t.id === todo.id);
-      state.todos.splice(index, 1, todo);
+      state.todos = state.todos.map((t) => (t.id === todo.id ? todo : t));
     },
     deleteTodo(state, todo) {
-      const index = state.todos.findIndex((t) => t.id === todo.id);
-      state.todos.splice(index, 1);
+      if (state.todos.length == 1) {
+        state.todos = new Array();
+      } else {
+        state.todos = state.todos.filter((t) => t.id !== todo.id);
+      }
     },
   },
   actions: {
     async fetchToDos({ commit }) {
       await agent.ToDos.list()
         .then((response) => {
-          commit('saveTodos', response);
+          if (response.length > 0) {
+            commit('saveTodos', response);
+          }
         })
         .catch((error) => {
           console.log(error);
         });
     },
-    async toggleDone(_, todo) {
+    async toggleStatus(_, todo) {
       todo.isDone = !todo.isDone;
       todo['priorityId'] = todo.priority.id;
 
@@ -54,7 +58,7 @@ export default {
       commit('deleteTodo', todo);
     },
     onArchiveTodoEvent({ commit }, todo) {
-      console.log('nu merge ba', todo);
+      console.log('onArchiveTodoEvent', todo);
       commit('deleteTodo', todo);
     },
   },

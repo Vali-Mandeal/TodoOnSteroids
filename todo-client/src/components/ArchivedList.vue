@@ -29,9 +29,6 @@ export default {
     const todos = computed(() => {
       return store.getters['archiveStore/getToDos'];
     });
-    if (todos.value == null) {
-      store.dispatch('archiveStore/fetchToDos');
-    }
 
     return {
       todos,

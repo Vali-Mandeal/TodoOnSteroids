@@ -18,26 +18,38 @@ export default {
   setup() {
     const store = useStore();
 
-    const createdTodo = 'CreatedTodo';
-    const updatedTodo = 'UpdatedTodo';
+    // const createdTodo = 'CreatedTodo';
+    // const updatedTodo = 'UpdatedTodo';
     // const deletedTodo = 'DeletedTodo';
-    const archivedTodo = 'ArchivedTodo';
-    const todoEvents = ['CreatedTodo', 'UpdatedTodo', 'ArchivedTodo'];
-    const archiveEvents = ['UnarchivedTodo', 'DeletedTodo'];
+    // const archivedTodo = 'ArchivedTodo';
+    // const todoEvents2 = ['CreatedTodo', 'UpdatedTodo', 'ArchivedTodo'];
+    const todoEvents = {
+      CreatedTodo: 'CreatedTodo',
+      UpdatedTodo: 'UpdatedTodo',
+      ArchivedTodo: 'ArchivedTodo',
+    };
+
+    const archiveEvents = {
+      unarchivedTodo: 'UnarchivedTodo',
+      deletedTodo: 'DeletedTodo',
+    };
 
     let todoConnection;
     let archiveConnection;
 
     onMounted(() => {
+      store.dispatch('todoStore/fetchToDos');
+      store.dispatch('archiveStore/fetchToDos');
+
       setHubConnections();
       startHubConnections();
 
-      todoEvents.forEach(todoEvent => {
+      Object.keys(todoEvents).forEach((todoEvent) => {
         subscribeToTodoEvents(todoEvent);
       });
 
-      archiveEvents.forEach(todoEvent => {
-          subscribeToArchiveEvents(todoEvent);
+      Object.keys(archiveEvents).forEach((archiveEvent) => {
+        subscribeToArchiveEvents(archiveEvent);
       });
     });
 
@@ -48,22 +60,18 @@ export default {
         .build();
 
       archiveConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5257/archiveHub')
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
+        .withUrl('http://localhost:5257/archiveHub')
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
     };
 
     const startHubConnections = () => {
-      todoConnection
-        .start()
-        .catch(function (err) {
-          return console.error(err.toString());
+      todoConnection.start().catch(function (err) {
+        return console.error(err.toString());
       });
 
-      archiveConnection
-        .start()
-        .catch(function (err) {
-          return console.error(err.toString());
+      archiveConnection.start().catch(function (err) {
+        return console.error(err.toString());
       });
     };
 
@@ -71,22 +79,28 @@ export default {
       todoConnection.on(eventName, (message) => {
         console.log('a venit eventu din Todo:', eventName, message);
 
-        if (eventName == createdTodo)
+        if (eventName == todoEvents.CreatedTodo)
           store.dispatch('todoStore/onAddTodoEvent', message);
-        if (eventName == updatedTodo)
+        if (eventName == todoEvents.UpdatedTodo)
           store.dispatch('todoStore/onUpdateTodoEvent', message);
-        if (eventName == archivedTodo)
+        if (eventName == todoEvents.ArchivedTodo) {
           store.dispatch('todoStore/onArchiveTodoEvent', message);
+          store.dispatch('archiveStore/onAddTodo', message);
+        }
       });
     };
 
     const subscribeToArchiveEvents = (eventName) => {
       archiveConnection.on(eventName, (message) => {
         console.log('a venit eventu din archive:', eventName, message);
+
+        if (eventName == archiveEvents.unarchivedTodo) {
+          store.dispatch('archiveStore/onUnarchive', message);
+          store.dispatch('todoStore/onAddTodoEvent', message);
+        }
       });
     };
   },
-
 };
 </script>
 

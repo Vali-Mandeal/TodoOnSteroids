@@ -18,13 +18,13 @@
               v-if="todo.isDone == true"
               name="done"
               color="#0A1128"
-              @click="toggleDone(todo)"
+              @click="toggleStatus(todo)"
             />
             <va-icon
               v-if="todo.isDone == false"
               name="check_box_outline_blank"
               color="#0A1128"
-              @click="toggleDone(todo)"
+              @click="toggleStatus(todo)"
             />
           </va-list-item-section>
         </va-list-item>
@@ -44,14 +44,11 @@ export default {
     const todos = computed(() => {
       return store.getters['todoStore/getToDos'];
     });
-    if (todos.value == null) {
-      store.dispatch('todoStore/fetchToDos');
-    }
 
     return {
       todos,
-      toggleDone(todo) {
-        store.dispatch('todoStore/toggleDone', todo);
+      toggleStatus(todo) {
+        store.dispatch('todoStore/toggleStatus', todo);
       },
       sendToArchive(todo) {
         store.dispatch('todoStore/sendToArchive', todo.id);
